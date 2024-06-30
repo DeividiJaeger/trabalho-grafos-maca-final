@@ -2,7 +2,7 @@
 #define _GRAFO_H_
 #include <stdbool.h>
 
-#include "fila.h"
+// #include "fila.h"
 
 typedef struct _grafo *Grafo;
 
@@ -65,10 +65,15 @@ bool grafo_proxima_aresta(Grafo self, int *vizinho, void *pdado);
 // retorna true se grafo é cíclico, false caso contrário
 bool grafo_tem_ciclo(Grafo self);
 
+// Essa função vai retornar posterior mente para que possa ir testando as funções que eu vou criando
+
 // retorna uma fila contendo os números dos nós do grafo em uma ordem em que, se o nó 'a'
 //   antecede 'b', não existe uma aresta de 'b' para 'a' no grafo
 // deve retornar uma fila vazia caso tal ordem não exista
 // quem chama esta função é responsável por destruir a fila.
-Fila grafo_ordem_topologica(Grafo self);
+// Fila grafo_ordem_topologica(Grafo self);
 
+
+/* Função inserida apenas para imprimir e poder testar cada função implementada*/
+void grafo_imprime(Grafo grafo);
 #endif //_GRAFO_H_
