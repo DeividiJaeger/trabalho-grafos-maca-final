@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "grafo.h"
-
 // Definindo a estrutura de uma aresta
 typedef struct Aresta 
 {
