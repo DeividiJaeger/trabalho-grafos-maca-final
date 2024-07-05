@@ -77,7 +77,7 @@ void grafo_destroi(Grafo self)
 }
 
 // Insere um nó no grafo, com o dado apontado por pdado
-// retorna o número do novo nó
+// retorna o índice do novo nó
 int grafo_insere_no(Grafo self, void *pdado)
 {
     //Verifica os argumetos recebidos
