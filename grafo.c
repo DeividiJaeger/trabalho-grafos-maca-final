@@ -28,7 +28,10 @@ typedef struct _grafo
 } _grafo;
 
 //  Função para criar um grafo vazio
-Grafo grafo_cria(int tam_no, int tam_aresta)
+/* O dado, tamaho no e tamanho aresta representa o tamanho do dado que eu quero armazenar no no
+    pode então ter o sizeof de um int ou sizeof de uma struct tanto faz
+*/
+Grafo grafo_cria(int tam_no, int tam_aresta)    
 {
     Grafo grafo = (Grafo)malloc(sizeof(_grafo));
     if(grafo == NULL)
@@ -51,8 +54,9 @@ void grafo_destroi(Grafo self)
     {
         return;
     }
-    // Senão...
-    // Libera memória para cada nó
+    /* Senão...
+    Libera memória para cada nó
+    */
     for(int i = 0; i < self->numVertices; i++)
     {
         Aresta* aresta = self->vertice[i].listaArestas;
