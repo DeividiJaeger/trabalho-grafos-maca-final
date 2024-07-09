@@ -141,3 +141,89 @@ void grafo_imprime(Grafo grafo)
     }
     
 }
+
+// Remove um nó do grafo e as arestas incidentes nesse nó
+// a identificação dos nós remanescentes é alterada, como se esse nó nunca tivesse existido
+void grafo_remove_no(Grafo self, int no)
+{
+    //1º Verifica se o grafo e o indice do no a ser removido são válidos
+    if(self == NULL || no < 0 || no >= self->numVertices)
+    {
+        fprintf(stderr, "Erro: Arvore ou no são nulos\n");
+        return;
+    }
+
+    //2º Remoção de todas arestas do no
+    for(int i = 0; i < self->numVertices; i++)
+    {
+        //Pego a aresta anterior
+        Aresta *arestaAnterior = NULL;
+        //Pego a aresta atual na lista encadeada
+        Aresta *arestaAtual = self->vertice[i].listaArestas;
+
+        while (arestaAtual != NULL)
+        {
+            /* Verifico se a aresta atual tem o nó a ser removido
+            como destino ou então esse nó atual ja é o nó pra ser removido */
+           if(arestaAtual->destino == no || i == no)
+           {
+                /* Se minha anterior é nula então a gente ta na primeira aresta da lista logo ajusto o ponteiro p/ proxima aresta */
+                if(arestaAnterior == NULL){
+                    self->vertice[i].listaArestas = arestaAtual->prox;
+                }else{
+                    /* Senão ajusto o ponteiro proximo da aresta anteriror pra pular pra aresta atual */
+                    arestaAnterior->prox = arestaAtual->prox;
+                }
+                // Libero o dado da aresta atual
+                free(arestaAtual->dado);
+                // Variavel auxiliar pegando o proximo aresta antes de liberar
+                Aresta* proximaArestaAuxiliar = arestaAtual->prox;
+                //Libero a aresta atual
+                free(arestaAtual);
+                //Reajusto a atual
+                arestaAtual = proximaArestaAuxiliar;
+           }else{
+                /* Se a aresta atual não precisa ser removida então eu pulo para a proxima */
+                arestaAnterior = arestaAtual;
+                arestaAtual = arestaAtual->prox;
+           }
+        }
+        
+    }
+
+    // 3º Liberar a memória dos dados do nó(indice) a ser removido
+    free(self->vertice[no].dado);
+
+    // 4º Desalocar os nos restantes e preencher o que ficar em branco pelo no removido deslocando para a esquerda
+    for(int i = no; i < self->numVertices - 1; i++)
+    {
+        // copio o conteudo do no na posicao (i + 1) para a posição (i)
+        self->vertice[i] = self->vertice[i + 1];
+    }
+
+    //5º Ajusto as arestas restantes iterando por tods os nos restantes
+    for(int i = 0; i < self->numVertices - 1; i++)
+    {
+        Aresta* arestaAtual = self->vertice[i].listaArestas;
+        while(arestaAtual != NULL)
+        {
+            /* Se o meu destino da aresta for maior que o no removido, então eu decremento o indice desse no */
+            if(arestaAtual->destino > no)
+            {
+                arestaAtual->destino--;
+            }
+            arestaAtual = arestaAtual->prox;
+        }
+    }
+
+    // 6º Reduzo o tamanho do arra dos nos e realoco a memoria 
+    self->vertice = (No*)realloc(self->vertice, (self->numVertices - 1) * sizeof(No));
+    if(self->vertice == NULL && self->numVertices > 1)
+    {
+        fprintf(stderr, "Erro ao realocar memoria para os nos\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // 7º Atualizo o contador de nos
+    self->numVertices--;
+}            
