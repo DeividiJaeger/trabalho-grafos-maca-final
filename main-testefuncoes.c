@@ -19,11 +19,14 @@ int main(){
     printf("Grafo apos inserir os nos:\n");
     grafo_imprime(grafo);
 
+    printf("Grafo apos remover 1 no\n");
+    grafo_remove_no(grafo, no2);
 
-    grafo_destroi(grafo);
-    grafo = NULL;
+
+    // grafo_destroi(grafo);
+    // grafo = NULL;
     
-    printf("Grafo apos destruicao: \n");
+    printf("Grafo apos remocao do segundo dado: \n");
     grafo_imprime(grafo);
     return 0;
 }
