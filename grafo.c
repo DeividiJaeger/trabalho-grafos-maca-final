@@ -28,11 +28,11 @@ typedef struct _grafo
 } _grafo;
 
 //  Função para criar um grafo vazio
-/* O dado, tamaho no e tamanho aresta representa o tamanho do dado que eu quero armazenar no no
-    pode então ter o sizeof de um int ou sizeof de uma struct tanto faz
-*/
 Grafo grafo_cria(int tam_no, int tam_aresta)    
 {
+    /* O dado, tamaho no e tamanho aresta representa o tamanho do dado que eu quero armazenar no no
+    pode então ter o sizeof de um int ou sizeof de uma struct tanto faz
+    */
     Grafo grafo = (Grafo)malloc(sizeof(_grafo));
     if(grafo == NULL)
     {
