@@ -227,3 +227,19 @@ void grafo_remove_no(Grafo self, int no)
     // 7º Atualizo o contador de nos
     self->numVertices--;
 }            
+
+// altera o valor associado a um nó (copia o valor apontado por pdado para o nó)
+void grafo_altera_valor_no(Grafo self, int no, void *pdado)
+{
+    // 1º Verifico os parâmetros recebidos
+    if(self == NULL || no < 0 || no >= self->numVertices || pdado == NULL){
+        fprintf(stderr, "erro grafo, no ou pdado nulos\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // 2º Se parametros validos então
+    /*(destino)(origem)(tamanho em bytes)*/
+    memcpy(self->vertice[no].dado, pdado, self->tam_no);
+}
+
+
