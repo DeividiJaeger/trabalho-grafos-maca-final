@@ -242,4 +242,133 @@ void grafo_altera_valor_no(Grafo self, int no, void *pdado)
     memcpy(self->vertice[no].dado, pdado, self->tam_no);
 }
 
+// coloca em pdado o valor associado a um nó
+void grafo_valor_no(Grafo self, int no, void *pdado)
+{
+    if(self == NULL || no < 0 || no >= self->numVertices || pdado == NULL){
+        printf("dados passados para o no sao invalidos\n");
+        return;
+    }
+    // Copio os dados para o novo no
+    memcpy(pdado, self->vertice[no].dado, self->tam_no);
+}
 
+// retorna o número de nós do grafo
+int grafo_nnos(Grafo self){
+    if(self == NULL){
+        printf("erro: Grafo nulo\n");
+    }
+    return self->numVertices;
+}
+
+// Arestas
+// Função auxiliar para remover a aresta
+void remove_aresta(No *no, int destino) {
+    Aresta *anterior = NULL;
+    Aresta *atual = no->listaArestas;
+
+    while (atual != NULL && atual->destino != destino) {
+        anterior = atual;
+        atual = atual->prox;
+    }
+
+    if (atual == NULL) {
+        // A aresta não existe, nada para remover
+        return;
+    }
+
+    if (anterior == NULL) {
+        // A aresta a ser removida é a primeira da lista
+        no->listaArestas = atual->prox;
+    } else {
+        // A aresta a ser removida está no meio ou fim da lista
+        anterior->prox = atual->prox;
+    }
+
+    free(atual->dado);
+    free(atual);
+}
+
+// Função auxiliar pra criar a aresta
+void cria_aresta(No *no, int destino, void *pdado, int tam_aresta) {
+    Aresta *novaAresta = (Aresta *)malloc(sizeof(Aresta));
+    if (novaAresta == NULL) {
+        fprintf(stderr, "Erro ao alocar memória para a nova aresta\n");
+        exit(EXIT_FAILURE);
+    }
+    novaAresta->dado = malloc(tam_aresta);
+    if (novaAresta->dado == NULL) {
+        fprintf(stderr, "Erro ao alocar memória para o dado da nova aresta\n");
+        free(novaAresta);
+        exit(EXIT_FAILURE);
+    }
+    memcpy(novaAresta->dado, pdado, tam_aresta);
+    novaAresta->destino = destino;
+    novaAresta->prox = no->listaArestas;
+    no->listaArestas = novaAresta;
+}
+
+// altera o valor da aresta que interliga o nó origem ao nó destino (copia de *pdado)
+// caso a aresta não exista, deve ser criada
+// caso pdado seja NULL, a aresta deve ser removida
+void grafo_altera_valor_aresta(Grafo self, int origem, int destino, void *pdado) {
+    // Verificação dos parâmetros recebidos
+    if (self == NULL || origem < 0 || destino < 0 || origem >= self->numVertices || destino >= self->numVertices) {
+        printf("Erro: parâmetros inválidos na função altera_valor_aresta\n");
+        return;
+    }
+
+    // Procurar a aresta na lista de arestas do nó de origem
+    Aresta *anterior = NULL;
+    Aresta *atual = self->vertice[origem].listaArestas;
+
+    while (atual != NULL && atual->destino != destino) {
+        anterior = atual;
+        atual = atual->prox;
+    }
+
+    // Se pdado é NULL, a aresta deve ser removida
+    if (pdado == NULL) {
+        if (atual != NULL) {
+            remove_aresta(&self->vertice[origem], destino);
+        }
+        return;
+    }
+
+    // Se a aresta já existe, alterar o valor
+    if (atual != NULL) {
+        memcpy(atual->dado, pdado, self->tam_aresta);
+    } else {
+        // Se a aresta não existe, criar uma nova aresta
+        cria_aresta(&self->vertice[origem], destino, pdado, self->tam_aresta);
+    }
+}
+
+// coloca em pdado (se não for NULL) o valor associado à aresta, se existir
+// retorna true se a aresta entre os nós origem e destino existir, e false se não existir
+bool grafo_valor_aresta(Grafo self, int origem, int destino, void *pdado)
+{
+    // Verificação dos parâmetros recebidos
+    if (self == NULL || origem < 0 || destino < 0 || origem >= self->numVertices || destino >= self->numVertices) 
+    {
+        printf("Erro: parâmetros inválidos na função altera_valor_aresta\n");
+        return;
+    }
+
+
+    Aresta *atual = self->vertice[origem].listaArestas;
+    while(atual != NULL){
+        if(atual->destino == destino)
+        {
+            // coloca em pdado (se não for NULL) o valor associado à aresta, se existir
+            if(pdado != NULL){
+                memcpy(pdado, atual->dado, self->tam_aresta);
+            }
+            // Aresta encontrada
+            return true;    
+        }
+        atual = atual->prox;
+    }
+    // Aresta não encontrada
+    return false;
+}
