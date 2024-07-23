@@ -36,6 +36,12 @@ int main(){
     printf("Grafo apos remocao do segundo dado: \n");
     grafo_imprime(grafo);
 
+    // Teste função que capta o numero de nos no grafo
+    int x = grafo_nnos(grafo);
+    printf("Numero de nos no grafo %d\n", x);
+
+
+
    // Teste destroi grafo 
     grafo_destroi(grafo);
     grafo = NULL;
