@@ -1,8 +1,7 @@
 #ifndef _GRAFO_H_
 #define _GRAFO_H_
 #include <stdbool.h>
-
-// #include "fila.h"
+#include "fila.h"
 
 typedef struct _grafo *Grafo;
 
