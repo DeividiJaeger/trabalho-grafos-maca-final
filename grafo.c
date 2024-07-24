@@ -25,6 +25,9 @@ typedef struct _grafo
     int tam_no;
     int tam_aresta;
     No* vertice;
+    Aresta *arestaAtual; // Serve para reastrear o estado da iteração
+    int modoConsulta;    // Defino o tipo da consulta se 1 é que partem e 2 que chegam no no
+    int noConsulta;      // Guardo o no atual da consulta aqui
 } _grafo;
 
 //  Função para criar um grafo vazio
@@ -371,4 +374,17 @@ bool grafo_valor_aresta(Grafo self, int origem, int destino, void *pdado)
     }
     // Aresta não encontrada
     return false;
+}
+
+// inicia uma consulta a arestas que partem do nó origem
+// as próximas chamadas a 'grafo_proxima_aresta' devem retornar os valores correspondentes
+//   à cada aresta que parte desse nó
+void grafo_arestas_que_partem(Grafo self, int origem){
+    if(self == NULL || origem < 0 || origem >= self->numVertices){
+        printf("Erro: parametros invalidos linha 384\n");
+        return;
+    }
+    self->arestaAtual = self->vertice[origem].listaArestas;
+    self->modoConsulta = 1; // tipo 1 repectivo ao no que parte
+    self->noConsulta = origem;
 }
