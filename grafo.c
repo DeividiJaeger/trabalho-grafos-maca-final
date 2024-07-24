@@ -378,8 +378,9 @@ bool grafo_valor_aresta(Grafo self, int origem, int destino, void *pdado)
 
 // inicia uma consulta a arestas que partem do nó origem
 // as próximas chamadas a 'grafo_proxima_aresta' devem retornar os valores correspondentes
-//   à cada aresta que parte desse nó
-void grafo_arestas_que_partem(Grafo self, int origem){
+// à cada aresta que parte desse nó
+void grafo_arestas_que_partem(Grafo self, int origem)
+{
     if(self == NULL || origem < 0 || origem >= self->numVertices){
         printf("Erro: parametros invalidos linha 384\n");
         return;
@@ -387,4 +388,34 @@ void grafo_arestas_que_partem(Grafo self, int origem){
     self->arestaAtual = self->vertice[origem].listaArestas;
     self->modoConsulta = 1; // tipo 1 repectivo ao no que parte
     self->noConsulta = origem;
+}
+
+// inicia uma consulta a arestas que chegam ao nó destino
+// as próximas chamadas a 'grafo_proxima_aresta' devem retornar os valores correspondentes
+// à cada aresta que chega nesse nó
+void grafo_arestas_que_chegam(Grafo self, int destino)
+{
+    if(self == NULL || destino < 0 || destino >= self->numVertices){
+        printf("Erro: parametros invalidos linha 399\n");
+        return;
+    }
+
+    self->arestaAtual = NULL;
+    self->modoConsulta = 2; // tipo 2 repectivo ao no que chega
+    self->noConsulta = destino;
+
+    // Encontro a aresta que chega no destino 
+    for(int i = 0; i < self->numVertices; i++)
+    {
+        Aresta *aresta = self->vertice[i].listaArestas;
+        while(aresta != NULL)
+        {
+            if(aresta->destino == destino)
+            {
+                self->arestaAtual = aresta;
+                return;
+            }
+            aresta = aresta->prox;
+        }
+    }
 }
