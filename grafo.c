@@ -499,3 +499,54 @@ bool grafo_proxima_aresta(Grafo self, int *vizinho, void *pdado)
     return false;
 }
 
+// Função auxiliar para verificação do ciclo
+bool grafo_tem_ciclo_aux(Grafo self, int v, bool *visitado, bool *pilhaRec)
+{
+    Aresta *aresta = self->vertice[v].listaArestas;
+    while(aresta != NULL)
+    {
+        int destino = aresta->destino;
+
+        // Se o desitno não foi visitado chamo a função recursivamente
+        if(!visitado[destino] && grafo_tem_ciclo_aux(self, destino, visitado, pilhaRec)){
+            return true;
+        }else if(pilhaRec[destino]){
+            return true;
+        }
+        aresta = aresta->prox;
+    }
+    
+    // Removo o vertice da pilha de recursão
+    pilhaRec[v] = false;
+    return false;
+}
+
+// Retorna true se o grafo é cíclico, false caso contrário
+bool grafo_tem_ciclo(Grafo self) {
+    bool *visitado = (bool *)malloc(self->numVertices * sizeof(bool));
+    bool *pilhaRec = (bool *)malloc(self->numVertices * sizeof(bool));
+    
+    if (visitado == NULL || pilhaRec == NULL) {
+        fprintf(stderr, "Erro ao alocar memória.\n");
+        return false;
+    }
+
+    // Inicializar arrays
+    for (int i = 0; i < self->numVertices; i++) {
+        visitado[i] = false;
+        pilhaRec[i] = false;
+    }
+
+    // Verificar ciclos
+    for (int i = 0; i < self->numVertices; i++) {
+        if (!visitado[i] && grafo_tem_ciclo_aux(self, i, visitado, pilhaRec)) {
+            free(visitado);
+            free(pilhaRec);
+            return true;
+        }
+    }
+
+    free(visitado);
+    free(pilhaRec);
+    return false;
+}
