@@ -419,3 +419,83 @@ void grafo_arestas_que_chegam(Grafo self, int destino)
         }
     }
 }
+
+// Funções auxiliares para diminuir o tamanho e melhorar
+// a legibilidade da função grafo_proxima_aresta
+bool proxima_aresta_que_parte(Grafo self, int *vizinho, void *pdado)
+{
+    if(self->arestaAtual == NULL) 
+    {return false;
+    }
+    if(vizinho != NULL)
+    { 
+        *vizinho = self->arestaAtual->destino;
+    }
+    if(pdado != NULL)
+    {
+        memcpy(pdado, self->arestaAtual->dado, self->tam_aresta);
+    }
+    
+    self->arestaAtual = self->arestaAtual->prox;
+
+    return true;
+}
+
+bool proxima_aresta_que_chega(Grafo self, int *vizinho, void *pdado) {
+    // Percorre a lista de arestas atual procurando a próxima aresta que chega ao nó de destino
+    while (self->arestaAtual != NULL) {
+        if (self->arestaAtual->destino == self->noConsulta) {
+            if (vizinho != NULL) {
+                *vizinho = self->noConsulta;
+            }
+            // Se 'pdado' não for NULL, copia os dados da aresta para 'pdado'
+            if (pdado != NULL) {
+                memcpy(pdado, self->arestaAtual->dado, self->tam_aresta);
+            }
+            // Atualiza arestaAtual para a próxima aresta na lista
+            self->arestaAtual = self->arestaAtual->prox;
+            return true; 
+        }
+        self->arestaAtual = self->arestaAtual->prox;
+    }
+
+    // Se não houver mais arestas na lista do nó de origem, percorre todos os vértices do grafo
+    for (int i = 0; i < self->numVertices; i++) {
+        Aresta* aresta = self->vertice[i].listaArestas;
+        // Percorre a lista de arestas de cada vértice
+        while (aresta != NULL) {
+            // Verifica se a aresta chega ao nó de destino (noConsulta)
+            if (aresta->destino == self->noConsulta) {
+                self->arestaAtual = aresta; // Atualiza arestaAtual para a aresta encontrada
+                // Se 'vizinho' não for NULL, armazena o índice do vértice de origem em '*vizinho'
+                if (vizinho != NULL) {
+                    *vizinho = i;
+                }
+                if (pdado != NULL) {
+                    memcpy(pdado, self->arestaAtual->dado, self->tam_aresta);
+                }
+                self->arestaAtual = self->arestaAtual->prox;
+                return true; 
+            }
+            aresta = aresta->prox;
+        }
+    }
+    return false; 
+}
+
+bool grafo_proxima_aresta(Grafo self, int *vizinho, void *pdado)
+{
+    if(self == NULL || self->arestaAtual == NULL)
+    {
+        return false;
+    }
+
+    if(self->modoConsulta == 1){
+        return proxima_aresta_que_parte(self, vizinho, pdado);
+    }else if(self->modoConsulta == 2){
+        return proxima_aresta_que_chega(self, vizinho, pdado);
+    }
+
+    return false;
+}
+
