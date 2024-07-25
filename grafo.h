@@ -68,6 +68,6 @@ bool grafo_tem_ciclo(Grafo self);
 //   antecede 'b', não existe uma aresta de 'b' para 'a' no grafo
 // deve retornar uma fila vazia caso tal ordem não exista
 // quem chama esta função é responsável por destruir a fila.
-// Fila grafo_ordem_topologica(Grafo self);
+Fila grafo_ordem_topologica(Grafo self);
 
 #endif //_GRAFO_H_

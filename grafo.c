@@ -84,7 +84,8 @@ void grafo_destroi(Grafo self)
 int grafo_insere_no(Grafo self, void *pdado)
 {
     //Verifica os argumetos recebidos
-    if(self == NULL || pdado == NULL){
+    if(self == NULL || pdado == NULL)
+    {
         fprintf(stderr, "deu ruim \n");
         return -1; // <- Retorna o valor de erro.
     }
@@ -235,7 +236,8 @@ void grafo_remove_no(Grafo self, int no)
 void grafo_altera_valor_no(Grafo self, int no, void *pdado)
 {
     // 1º Verifico os parâmetros recebidos
-    if(self == NULL || no < 0 || no >= self->numVertices || pdado == NULL){
+    if(self == NULL || no < 0 || no >= self->numVertices || pdado == NULL)
+    {
         fprintf(stderr, "erro grafo, no ou pdado nulos\n");
         exit(EXIT_FAILURE);
     }
@@ -248,7 +250,8 @@ void grafo_altera_valor_no(Grafo self, int no, void *pdado)
 // coloca em pdado o valor associado a um nó
 void grafo_valor_no(Grafo self, int no, void *pdado)
 {
-    if(self == NULL || no < 0 || no >= self->numVertices || pdado == NULL){
+    if(self == NULL || no < 0 || no >= self->numVertices || pdado == NULL)
+    {
         printf("dados passados para o no sao invalidos\n");
         return;
     }
@@ -257,8 +260,10 @@ void grafo_valor_no(Grafo self, int no, void *pdado)
 }
 
 // retorna o número de nós do grafo
-int grafo_nnos(Grafo self){
-    if(self == NULL){
+int grafo_nnos(Grafo self)
+{
+    if(self == NULL)
+    {
         printf("erro: Grafo nulo\n");
     }
     return self->numVertices;
@@ -266,24 +271,29 @@ int grafo_nnos(Grafo self){
 
 // Arestas
 // Função auxiliar para remover a aresta
-void remove_aresta(No *no, int destino) {
+void remove_aresta(No *no, int destino) 
+{
     Aresta *anterior = NULL;
     Aresta *atual = no->listaArestas;
 
-    while (atual != NULL && atual->destino != destino) {
+    while (atual != NULL && atual->destino != destino) 
+    {
         anterior = atual;
         atual = atual->prox;
     }
 
-    if (atual == NULL) {
+    if (atual == NULL) 
+    {
         // A aresta não existe, nada para remover
         return;
     }
 
-    if (anterior == NULL) {
+    if (anterior == NULL) 
+    {
         // A aresta a ser removida é a primeira da lista
         no->listaArestas = atual->prox;
-    } else {
+    } else 
+    {
         // A aresta a ser removida está no meio ou fim da lista
         anterior->prox = atual->prox;
     }
@@ -293,14 +303,17 @@ void remove_aresta(No *no, int destino) {
 }
 
 // Função auxiliar pra criar a aresta
-void cria_aresta(No *no, int destino, void *pdado, int tam_aresta) {
+void cria_aresta(No *no, int destino, void *pdado, int tam_aresta) 
+{
     Aresta *novaAresta = (Aresta *)malloc(sizeof(Aresta));
-    if (novaAresta == NULL) {
+    if (novaAresta == NULL) 
+    {
         fprintf(stderr, "Erro ao alocar memória para a nova aresta\n");
         exit(EXIT_FAILURE);
     }
     novaAresta->dado = malloc(tam_aresta);
-    if (novaAresta->dado == NULL) {
+    if (novaAresta->dado == NULL) 
+    {
         fprintf(stderr, "Erro ao alocar memória para o dado da nova aresta\n");
         free(novaAresta);
         exit(EXIT_FAILURE);
@@ -314,9 +327,11 @@ void cria_aresta(No *no, int destino, void *pdado, int tam_aresta) {
 // altera o valor da aresta que interliga o nó origem ao nó destino (copia de *pdado)
 // caso a aresta não exista, deve ser criada
 // caso pdado seja NULL, a aresta deve ser removida
-void grafo_altera_valor_aresta(Grafo self, int origem, int destino, void *pdado) {
+void grafo_altera_valor_aresta(Grafo self, int origem, int destino, void *pdado) 
+{
     // Verificação dos parâmetros recebidos
-    if (self == NULL || origem < 0 || destino < 0 || origem >= self->numVertices || destino >= self->numVertices) {
+    if (self == NULL || origem < 0 || destino < 0 || origem >= self->numVertices || destino >= self->numVertices) 
+    {
         printf("Erro: parâmetros inválidos na função altera_valor_aresta\n");
         return;
     }
@@ -381,7 +396,8 @@ bool grafo_valor_aresta(Grafo self, int origem, int destino, void *pdado)
 // à cada aresta que parte desse nó
 void grafo_arestas_que_partem(Grafo self, int origem)
 {
-    if(self == NULL || origem < 0 || origem >= self->numVertices){
+    if(self == NULL || origem < 0 || origem >= self->numVertices)
+    {
         printf("Erro: parametros invalidos linha 384\n");
         return;
     }
@@ -395,7 +411,8 @@ void grafo_arestas_que_partem(Grafo self, int origem)
 // à cada aresta que chega nesse nó
 void grafo_arestas_que_chegam(Grafo self, int destino)
 {
-    if(self == NULL || destino < 0 || destino >= self->numVertices){
+    if(self == NULL || destino < 0 || destino >= self->numVertices)
+    {
         printf("Erro: parametros invalidos linha 399\n");
         return;
     }
@@ -425,7 +442,8 @@ void grafo_arestas_que_chegam(Grafo self, int destino)
 bool proxima_aresta_que_parte(Grafo self, int *vizinho, void *pdado)
 {
     if(self->arestaAtual == NULL) 
-    {return false;
+    {
+        return false;
     }
     if(vizinho != NULL)
     { 
@@ -441,15 +459,20 @@ bool proxima_aresta_que_parte(Grafo self, int *vizinho, void *pdado)
     return true;
 }
 
-bool proxima_aresta_que_chega(Grafo self, int *vizinho, void *pdado) {
+bool proxima_aresta_que_chega(Grafo self, int *vizinho, void *pdado) 
+{
     // Percorre a lista de arestas atual procurando a próxima aresta que chega ao nó de destino
-    while (self->arestaAtual != NULL) {
-        if (self->arestaAtual->destino == self->noConsulta) {
-            if (vizinho != NULL) {
+    while (self->arestaAtual != NULL) 
+    {
+        if (self->arestaAtual->destino == self->noConsulta) 
+        {
+            if (vizinho != NULL) 
+            {
                 *vizinho = self->noConsulta;
             }
             // Se 'pdado' não for NULL, copia os dados da aresta para 'pdado'
-            if (pdado != NULL) {
+            if (pdado != NULL) 
+            {
                 memcpy(pdado, self->arestaAtual->dado, self->tam_aresta);
             }
             // Atualiza arestaAtual para a próxima aresta na lista
@@ -460,18 +483,23 @@ bool proxima_aresta_que_chega(Grafo self, int *vizinho, void *pdado) {
     }
 
     // Se não houver mais arestas na lista do nó de origem, percorre todos os vértices do grafo
-    for (int i = 0; i < self->numVertices; i++) {
+    for (int i = 0; i < self->numVertices; i++) 
+    {
         Aresta* aresta = self->vertice[i].listaArestas;
         // Percorre a lista de arestas de cada vértice
-        while (aresta != NULL) {
+        while (aresta != NULL) 
+        {
             // Verifica se a aresta chega ao nó de destino (noConsulta)
-            if (aresta->destino == self->noConsulta) {
+            if (aresta->destino == self->noConsulta) 
+            {
                 self->arestaAtual = aresta; // Atualiza arestaAtual para a aresta encontrada
                 // Se 'vizinho' não for NULL, armazena o índice do vértice de origem em '*vizinho'
-                if (vizinho != NULL) {
+                if (vizinho != NULL) 
+                {
                     *vizinho = i;
                 }
-                if (pdado != NULL) {
+                if (pdado != NULL) 
+                {
                     memcpy(pdado, self->arestaAtual->dado, self->tam_aresta);
                 }
                 self->arestaAtual = self->arestaAtual->prox;
@@ -490,9 +518,11 @@ bool grafo_proxima_aresta(Grafo self, int *vizinho, void *pdado)
         return false;
     }
 
-    if(self->modoConsulta == 1){
+    if(self->modoConsulta == 1)
+    {
         return proxima_aresta_que_parte(self, vizinho, pdado);
-    }else if(self->modoConsulta == 2){
+    }else if(self->modoConsulta == 2)
+    {
         return proxima_aresta_que_chega(self, vizinho, pdado);
     }
 
@@ -508,9 +538,11 @@ bool grafo_tem_ciclo_aux(Grafo self, int v, bool *visitado, bool *pilhaRec)
         int destino = aresta->destino;
 
         // Se o desitno não foi visitado chamo a função recursivamente
-        if(!visitado[destino] && grafo_tem_ciclo_aux(self, destino, visitado, pilhaRec)){
+        if(!visitado[destino] && grafo_tem_ciclo_aux(self, destino, visitado, pilhaRec))
+        {
             return true;
-        }else if(pilhaRec[destino]){
+        }else if(pilhaRec[destino])
+        {
             return true;
         }
         aresta = aresta->prox;
@@ -526,20 +558,24 @@ bool grafo_tem_ciclo(Grafo self) {
     bool *visitado = (bool *)malloc(self->numVertices * sizeof(bool));
     bool *pilhaRec = (bool *)malloc(self->numVertices * sizeof(bool));
     
-    if (visitado == NULL || pilhaRec == NULL) {
+    if (visitado == NULL || pilhaRec == NULL) 
+    {
         fprintf(stderr, "Erro ao alocar memória.\n");
         return false;
     }
 
     // Inicializar arrays
-    for (int i = 0; i < self->numVertices; i++) {
+    for (int i = 0; i < self->numVertices; i++) 
+    {
         visitado[i] = false;
         pilhaRec[i] = false;
     }
 
     // Verificar ciclos
-    for (int i = 0; i < self->numVertices; i++) {
-        if (!visitado[i] && grafo_tem_ciclo_aux(self, i, visitado, pilhaRec)) {
+    for (int i = 0; i < self->numVertices; i++) 
+    {
+        if (!visitado[i] && grafo_tem_ciclo_aux(self, i, visitado, pilhaRec)) 
+        {
             free(visitado);
             free(pilhaRec);
             return true;
@@ -549,4 +585,13 @@ bool grafo_tem_ciclo(Grafo self) {
     free(visitado);
     free(pilhaRec);
     return false;
+}
+
+// retorna uma fila contendo os números dos nós do grafo em uma ordem em que, se o nó 'a'
+// antecede 'b', não existe uma aresta de 'b' para 'a' no grafo
+// deve retornar uma fila vazia caso tal ordem não exista
+// quem chama esta função é responsável por destruir a fila.
+Fila grafo_ordem_topologica(Grafo self)
+{
+    
 }
