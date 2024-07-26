@@ -30,6 +30,18 @@ typedef struct _grafo
     int noConsulta;      // Guardo o no atual da consulta aqui
 } _grafo;
 
+// Struct responsável pela fila para utilizar o algoritmo de kahn
+// Esse algoritmo é responsável para ordenar os vertices de um grafo direcionado de forma linear
+// Onde é aplicado em grafos acíclicos direcionados (DAGs) para determinar a ordem topológica 
+// onde cada vértice aparece 
+typedef struct fila{
+    int *elementos;
+    int frente;
+    int tras;
+    int capacidade;
+    int tamanho;
+}Fila;
+
 //  Função para criar um grafo vazio
 Grafo grafo_cria(int tam_no, int tam_aresta)    
 {
@@ -587,11 +599,81 @@ bool grafo_tem_ciclo(Grafo self) {
     return false;
 }
 
+
+/* 
+Seção reponsável pelo algoritmo de Kahn, ordem topológica de um grafo direcionado e ciclico
+*/
+int esta_vazia(Fila* f) {
+    return f->tamanho == 0;
+}
+
+Fila *fila_cria(int capacidade)
+{  
+    Fila *fila = (Fila*)malloc(sizeof(Fila));
+    fila->elementos = (int*)malloc(sizeof(int));
+    fila->frente = 0;
+    fila->tras = -1;
+    fila->capacidade = capacidade;
+    fila->tamanho = 0;
+    return fila;
+}
+
+void enfileirar(Fila *f, int elemento)
+{
+    if(f->tamanho == f->capacidade)
+    {
+        printf("Fila cheia\n");
+        return;
+    }
+    f->tras = (f->tras + 1) % f->capacidade;
+    f->elementos[f->tras] = elemento;
+    f->tamanho++;
+}
+
+void desenfileirar(Fila *f)
+{
+    if(esta_vazia(f))
+    {
+        printf("Fila vazia\n");
+        return -1;
+    }
+    int elemento = f->elementos[f->frente];
+    f->frente = (f->frente + 1) % f->capacidade;
+    f->tamanho--;
+    return elemento;
+}
+
+void destruir_fila(Fila *f)
+{
+    free(f->elementos);
+    free(f);
+}
+
+// Aqui percorre todas as arestas do grafo e conta o numero de vezes que cada no e destino de uma aresta
+int *calcular_grau_entrada(Grafo self)
+{   
+   int *grau_entrada = (int*)calloc(self->numVertices, sizeof(int));
+   for(int i = 0; i < self->numVertices; i++)
+   {
+        Aresta *aresta = self->vertice[i].listaArestas;
+        while(aresta != NULL)
+        {
+            grau_entrada[aresta->destino]++;
+            aresta = aresta->prox;
+        }
+   }   
+   return grau_entrada;
+}
+
 // retorna uma fila contendo os números dos nós do grafo em uma ordem em que, se o nó 'a'
 // antecede 'b', não existe uma aresta de 'b' para 'a' no grafo
 // deve retornar uma fila vazia caso tal ordem não exista
 // quem chama esta função é responsável por destruir a fila.
 Fila grafo_ordem_topologica(Grafo self)
 {
+    if(self == NULL){
+        printf("Erro, grafo nulo linha 614\n");
+        return;
+    }
     
 }
