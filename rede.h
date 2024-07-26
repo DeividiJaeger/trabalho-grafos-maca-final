@@ -31,7 +31,7 @@
 #define PRIMEIRO_NO_INTERMEDIARIO (N_ENTRADAS+N_SAIDAS)
 
 #include "grafo.h"
-// #include "fila.h"
+#include "fila.h"
 
 typedef struct _rede *Rede;
 
@@ -46,7 +46,7 @@ typedef struct _rede *Rede;
 // Contém também uma fila, com os números dos nós na ordem em que têm que ser calculados.
 struct _rede {
   Grafo grafo;
-  // Fila ordem;
+  Fila ordem;
 };
 
 // Um neurônio tem uma identificação, e um viés, que é utilizado no cálculo de seu valor.

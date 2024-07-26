@@ -1,8 +1,9 @@
-// #include "grafo.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "fila.h"
 #include "grafo.h"
+
 // Definindo a estrutura de uma aresta
 typedef struct Aresta 
 {
@@ -30,18 +31,6 @@ typedef struct _grafo
     int noConsulta;      // Guardo o no atual da consulta aqui
 } _grafo;
 
-// Struct responsável pela fila para utilizar o algoritmo de kahn
-// Esse algoritmo é responsável para ordenar os vertices de um grafo direcionado de forma linear
-// Onde é aplicado em grafos acíclicos direcionados (DAGs) para determinar a ordem topológica 
-// onde cada vértice aparece 
-typedef struct fila{
-    int *elementos;
-    int frente;
-    int tras;
-    int capacidade;
-    int tamanho;
-}Fila;
-
 //  Função para criar um grafo vazio
 Grafo grafo_cria(int tam_no, int tam_aresta)    
 {
@@ -67,7 +56,7 @@ void grafo_destroi(Grafo self)
     // Se grafo null então retorna  
     if(self == NULL)
     {
-        return;
+        return; 
     }
     /* Senão...
     Libera memória para cada nó
@@ -86,7 +75,6 @@ void grafo_destroi(Grafo self)
     }
     // Libero a memoria do array de nós
     free(self->vertice);
-
     //Libero a memoria da estrutura do grafo
     free(self);
 }
@@ -95,68 +83,65 @@ void grafo_destroi(Grafo self)
 // retorna o índice do novo nó
 int grafo_insere_no(Grafo self, void *pdado)
 {
-    //Verifica os argumetos recebidos
-    if(self == NULL || pdado == NULL)
+    if (self == NULL || pdado == NULL)
     {
-        fprintf(stderr, "deu ruim \n");
-        return -1; // <- Retorna o valor de erro.
+        fprintf(stderr, "Erro: grafo ou dado nulos\n");
+        return -1; // Retorna o valor de erro.
     }
 
-    // Aqui vou realocar espaço para o novo no 
-    self->vertice = (No*)realloc(self->vertice, (self->numVertices + 1) * sizeof(No));
-    if(self->vertice == NULL)
+    // Realoca memória para o novo nó
+    No* temp = (No*)realloc(self->vertice, (self->numVertices + 1) * sizeof(No));
+    if (temp == NULL)
     {
-        fprintf(stderr, "Erro ao realocar memoria para o bendito no\n");
+        fprintf(stderr, "Erro ao realocar memória para o nó\n");
         exit(EXIT_FAILURE);
     }
+    self->vertice = temp;
 
-    // Aloco memoria para um novo no
+    // Aloca memória para o novo nó
     No* novoNo = &self->vertice[self->numVertices];
     novoNo->dado = malloc(self->tam_no);
-    if(novoNo->dado == NULL){
-        fprintf(stderr, "Erro ao alocar memoria para os dados od novo nozin\n");
+    if (novoNo->dado == NULL)
+    {
+        fprintf(stderr, "Erro ao alocar memória para os dados do novo nó\n");
         exit(EXIT_FAILURE);
     }
 
-    // Copio os dados para o novo no
+    // Copia os dados para o novo nó
     memcpy(novoNo->dado, pdado, self->tam_no);
     
-    // Inicializo a list de arestas do novo nó
+    // Inicializa a lista de arestas do novo nó
     novoNo->listaArestas = NULL;
 
-    //Atualizo o numero de vertices
+    // Atualiza o número de vértices
     int indice_novo_no = self->numVertices;
     self->numVertices++;
 
     return indice_novo_no;
-
 }
 
 /* Função para imprimir um grafo completo, suas arestas e nos e dados*/
-void grafo_imprime(Grafo grafo)
-{
-    if(grafo == NULL)
-    {
-        printf("KABUM!! Grafo esta destruido (vazio ou nulo).\n");
-        return;
-    }
-
-    for(int i = 0; i < grafo->numVertices; i++)
-    {
-        printf("No %d: ", i);
-        No* no = &grafo->vertice[i];
-        printf("dados = %d ", *(int*)no->dado);
-        Aresta* aresta = no->listaArestas;
-        while (aresta)
-        {
-            printf(" -> [Destino: %d, dados: %d] ", aresta->destino, *(int*)aresta->dado);
-            aresta = aresta->prox;
-        }
-        printf("\n");
-        
-    }
-    
-}
+// void grafo_imprime(Grafo grafo)
+// {
+//     if(grafo == NULL)
+//     {
+//         printf("KABUM!! Grafo esta destruido (vazio ou nulo).\n");
+//         return;
+//     }
+//     for(int i = 0; i < grafo->numVertices; i++)
+//     {
+//         printf("No %d: ", i);
+//         No* no = &grafo->vertice[i];
+//         printf("dados = %d ", *(int*)no->dado);
+//         Aresta* aresta = no->listaArestas;
+//         while (aresta)
+//         {
+//             printf(" -> [Destino: %d, dados: %d] ", aresta->destino, *(int*)aresta->dado);
+//             aresta = aresta->prox;
+//         }
+//         printf("\n");
+//     }   
+// }
 
 // Remove um nó do grafo e as arestas incidentes nesse nó
 // a identificação dos nós remanescentes é alterada, como se esse nó nunca tivesse existido
@@ -336,9 +321,9 @@ void cria_aresta(No *no, int destino, void *pdado, int tam_aresta)
     no->listaArestas = novaAresta;
 }
 
-// altera o valor da aresta que interliga o nó origem ao nó destino (copia de *pdado)
-// caso a aresta não exista, deve ser criada
-// caso pdado seja NULL, a aresta deve ser removida
+// Altera o valor da aresta que interliga o nó origem ao nó destino (copia de *pdado)
+// Caso a aresta não exista, deve ser criada
+// Caso pdado seja NULL, a aresta deve ser removida
 void grafo_altera_valor_aresta(Grafo self, int origem, int destino, void *pdado) 
 {
     // Verificação dos parâmetros recebidos
@@ -352,14 +337,17 @@ void grafo_altera_valor_aresta(Grafo self, int origem, int destino, void *pdado)
     Aresta *anterior = NULL;
     Aresta *atual = self->vertice[origem].listaArestas;
 
-    while (atual != NULL && atual->destino != destino) {
+    while (atual != NULL && atual->destino != destino) 
+    {
         anterior = atual;
         atual = atual->prox;
     }
 
     // Se pdado é NULL, a aresta deve ser removida
-    if (pdado == NULL) {
-        if (atual != NULL) {
+    if (pdado == NULL) 
+    {
+        if (atual != NULL) 
+        {
             remove_aresta(&self->vertice[origem], destino);
         }
         return;
@@ -376,25 +364,27 @@ void grafo_altera_valor_aresta(Grafo self, int origem, int destino, void *pdado)
 
 // coloca em pdado (se não for NULL) o valor associado à aresta, se existir
 // retorna true se a aresta entre os nós origem e destino existir, e false se não existir
-bool grafo_valor_aresta(Grafo self, int origem, int destino, void *pdado)
+bool grafo_valor_aresta(Grafo self, int origem, int destino, void *pdado) 
 {
     // Verificação dos parâmetros recebidos
     if (self == NULL || origem < 0 || destino < 0 || origem >= self->numVertices || destino >= self->numVertices) 
     {
-        printf("Erro: parâmetros inválidos na função altera_valor_aresta\n");
-        return;
+        printf("Erro: parâmetros inválidos na função grafo_valor_aresta\n");
+        printf("Detalhes: self=%p, origem=%d, destino=%d, numVertices=%d\n", self, origem, destino, self->numVertices);
+        return false; 
     }
 
-
     Aresta *atual = self->vertice[origem].listaArestas;
-    while(atual != NULL){
-        if(atual->destino == destino)
+    while (atual != NULL) 
+    {
+        if (atual->destino == destino) 
         {
-            // coloca em pdado (se não for NULL) o valor associado à aresta, se existir
-            if(pdado != NULL){
+            // Coloca em pdado (se não for NULL) o valor associado à aresta, se existir
+            if (pdado != NULL) 
+            {
                 memcpy(pdado, atual->dado, self->tam_aresta);
             }
-            // Aresta encontrada
+            // Aresta encontrada    
             return true;    
         }
         atual = atual->prox;
@@ -603,77 +593,62 @@ bool grafo_tem_ciclo(Grafo self) {
 /* 
 Seção reponsável pelo algoritmo de Kahn, ordem topológica de um grafo direcionado e ciclico
 */
-int esta_vazia(Fila* f) {
-    return f->tamanho == 0;
-}
-
-Fila *fila_cria(int capacidade)
-{  
-    Fila *fila = (Fila*)malloc(sizeof(Fila));
-    fila->elementos = (int*)malloc(sizeof(int));
-    fila->frente = 0;
-    fila->tras = -1;
-    fila->capacidade = capacidade;
-    fila->tamanho = 0;
-    return fila;
-}
-
-void enfileirar(Fila *f, int elemento)
-{
-    if(f->tamanho == f->capacidade)
-    {
-        printf("Fila cheia\n");
-        return;
-    }
-    f->tras = (f->tras + 1) % f->capacidade;
-    f->elementos[f->tras] = elemento;
-    f->tamanho++;
-}
-
-void desenfileirar(Fila *f)
-{
-    if(esta_vazia(f))
-    {
-        printf("Fila vazia\n");
-        return -1;
-    }
-    int elemento = f->elementos[f->frente];
-    f->frente = (f->frente + 1) % f->capacidade;
-    f->tamanho--;
-    return elemento;
-}
-
-void destruir_fila(Fila *f)
-{
-    free(f->elementos);
-    free(f);
-}
-
 // Aqui percorre todas as arestas do grafo e conta o numero de vezes que cada no e destino de uma aresta
-int *calcular_grau_entrada(Grafo self)
-{   
-   int *grau_entrada = (int*)calloc(self->numVertices, sizeof(int));
-   for(int i = 0; i < self->numVertices; i++)
-   {
-        Aresta *aresta = self->vertice[i].listaArestas;
-        while(aresta != NULL)
-        {
-            grau_entrada[aresta->destino]++;
-            aresta = aresta->prox;
+// Função para calcular os graus de entrada de cada vértice
+// Definição da função calcular_grau_entrada
+int* calcular_grau_entrada(Grafo self) {
+    int numVertices = grafo_nnos(self);
+    int* graus_entrada = calloc(numVertices, sizeof(int));
+    for (int i = 0; i < numVertices; i++) {
+        grafo_arestas_que_partem(self, i);
+        int vizinho;
+        while (grafo_proxima_aresta(self, &vizinho, NULL)) {
+            graus_entrada[vizinho]++;
         }
-   }   
-   return grau_entrada;
+    }
+    return graus_entrada;
 }
 
-// retorna uma fila contendo os números dos nós do grafo em uma ordem em que, se o nó 'a'
-// antecede 'b', não existe uma aresta de 'b' para 'a' no grafo
-// deve retornar uma fila vazia caso tal ordem não exista
-// quem chama esta função é responsável por destruir a fila.
-Fila grafo_ordem_topologica(Grafo self)
-{
-    if(self == NULL){
-        printf("Erro, grafo nulo linha 614\n");
-        return;
+Fila grafo_ordem_topologica(Grafo self) {
+    if (self == NULL) {
+        printf("Erro: grafo nulo\n");
+        return fila_cria(0); // Retorna uma fila vazia
     }
-    
+
+    int numVertices = grafo_nnos(self);
+    int* graus_entrada = calcular_grau_entrada(self);
+    Fila fila = fila_cria(0);
+    Fila ordem_topologica = fila_cria(0);
+
+    for (int i = 0; i < numVertices; i++) {
+        if (graus_entrada[i] == 0) {
+            fila_insere(fila, &i);
+        }
+    }
+
+    int vertices_processados = 0;
+    while (!fila_vazia(fila)) {
+        int vertice;
+        fila_remove(fila, &vertice);
+        fila_insere(ordem_topologica, &vertice);
+        vertices_processados++;
+        grafo_arestas_que_partem(self, vertice);
+        int vizinho;
+        while (grafo_proxima_aresta(self, &vizinho, NULL)) {
+            graus_entrada[vizinho]--;
+            if (graus_entrada[vizinho] == 0) {
+                fila_insere(fila, &vizinho);
+            }
+        }
+    }
+
+    free(graus_entrada);
+    fila_destroi(fila);
+
+    if (vertices_processados != numVertices) {
+        fila_destroi(ordem_topologica);
+        return fila_cria(0);
+    }
+
+    return ordem_topologica;
 }
