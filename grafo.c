@@ -214,7 +214,6 @@ void grafo_altera_valor_no(Grafo self, int no, void *pdado)
     // 1º Verifico os parâmetros recebidos
     if(self == NULL || no < 0 || no >= self->numVertices || pdado == NULL)
     {
-        fprintf(stderr, "erro grafo, no ou pdado nulos\n");
         exit(EXIT_FAILURE);
     }
 
@@ -228,7 +227,6 @@ void grafo_valor_no(Grafo self, int no, void *pdado)
 {
     if(self == NULL || no < 0 || no >= self->numVertices || pdado == NULL)
     {
-        printf("dados passados para o no sao invalidos\n");
         return;
     }
     // Copio os dados para o novo no
@@ -393,7 +391,6 @@ void grafo_arestas_que_chegam(Grafo self, int destino)
 {
     if(self == NULL || destino < 0 || destino >= self->numVertices)
     {
-        printf("Erro: parametros invalidos linha 399\n");
         return;
     }
 
@@ -561,54 +558,60 @@ bool grafo_tem_ciclo(Grafo self) {
     return false;
 }
 
-
-/* 
-Seção reponsável pelo algoritmo de Kahn, ordem topológica de um grafo direcionado e ciclico
-*/
 // Aqui percorre todas as arestas do grafo e conta o numero de vezes que cada no e destino de uma aresta
 // Função para calcular os graus de entrada de cada vértice
 // Definição da função calcular_grau_entrada
-int* calcular_grau_entrada(Grafo self) {
+int* calcular_grau_entrada(Grafo self) 
+{
     int numVertices = grafo_nnos(self);
     int* graus_entrada = calloc(numVertices, sizeof(int));
-    for (int i = 0; i < numVertices; i++) {
+    for (int i = 0; i < numVertices; i++) 
+    {
         grafo_arestas_que_partem(self, i);
         int vizinho;
-        while (grafo_proxima_aresta(self, &vizinho, NULL)) {
+        while (grafo_proxima_aresta(self, &vizinho, NULL)) 
+        {
             graus_entrada[vizinho]++;
         }
     }
     return graus_entrada;
 }
 
-Fila grafo_ordem_topologica(Grafo self) {
-    if (self == NULL) {
+Fila grafo_ordem_topologica(Grafo self) 
+{
+    if (self == NULL) 
+    {
         printf("Erro: grafo nulo\n");
-        return fila_cria(0); // Retorna uma fila vazia
+        return fila_cria(sizeof(int)); // Retorna uma fila vazia
     }
 
     int numVertices = grafo_nnos(self);
     int* graus_entrada = calcular_grau_entrada(self);
-    Fila fila = fila_cria(0);
-    Fila ordem_topologica = fila_cria(0);
+    Fila fila = fila_cria(sizeof(int));
+    Fila ordem_topologica = fila_cria(sizeof(int));
 
-    for (int i = 0; i < numVertices; i++) {
-        if (graus_entrada[i] == 0) {
+    for (int i = 0; i < numVertices; i++) 
+    {
+        if (graus_entrada[i] == 0) 
+        {
             fila_insere(fila, &i);
         }
     }
 
     int vertices_processados = 0;
-    while (!fila_vazia(fila)) {
+    while (!fila_vazia(fila)) 
+    {
         int vertice;
         fila_remove(fila, &vertice);
         fila_insere(ordem_topologica, &vertice);
         vertices_processados++;
         grafo_arestas_que_partem(self, vertice);
         int vizinho;
-        while (grafo_proxima_aresta(self, &vizinho, NULL)) {
+        while (grafo_proxima_aresta(self, &vizinho, NULL)) 
+        {
             graus_entrada[vizinho]--;
-            if (graus_entrada[vizinho] == 0) {
+            if (graus_entrada[vizinho] == 0) 
+            {
                 fila_insere(fila, &vizinho);
             }
         }
@@ -617,9 +620,10 @@ Fila grafo_ordem_topologica(Grafo self) {
     free(graus_entrada);
     fila_destroi(fila);
 
-    if (vertices_processados != numVertices) {
+    if (vertices_processados != numVertices) 
+    {
         fila_destroi(ordem_topologica);
-        return fila_cria(0);
+        return fila_cria(sizeof(int));
     }
 
     return ordem_topologica;

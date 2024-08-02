@@ -8,11 +8,8 @@
 
 #include "tecla.h"
 #include "tela.h"
-
 #include "fila.h"
-
 #include "rede.h"
-
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>

@@ -1,51 +1,62 @@
-#include "grafo.h"
-#include <stdlib.h>
-#include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include "grafo.h"
+#include "fila.h"
 
-
-int main(){
-
-    // Teste criando o meu grafo
+int main() {
+    // Cria um grafo com tamanho de nó e aresta arbitrários (por exemplo, tamanho de int)
     Grafo grafo = grafo_cria(sizeof(int), sizeof(int));
 
-    // Dados para ser inserido no grafo
-    int dado1 = 20;
-    int dado2 = 30;
-    int dado3 = 40;
+    // Verifica se a criação do grafo foi bem-sucedida
+    if (grafo == NULL) {
+        fprintf(stderr, "Erro ao criar o grafo.\n");
+        return EXIT_FAILURE;
+    }
 
-    // Teste inserção de no no grafo
-    int no1 = grafo_insere_no(grafo, &dado1);
-    int no2 = grafo_insere_no(grafo, &dado2);
-    int no3 = grafo_insere_no(grafo, &dado3);
-    
-    printf("Grafo apos inserir os nos:\n");
-    grafo_imprime(grafo);
+    // Adiciona vértices ao grafo
+    int dado1 = 1, dado2 = 2, dado3 = 3, dado4 = 4, dado5 = 5, dado6 = 6;
+    grafo_insere_no(grafo, &dado1); // Vértice 0
+    grafo_insere_no(grafo, &dado2); // Vértice 1
+    grafo_insere_no(grafo, &dado3); // Vértice 2
+    grafo_insere_no(grafo, &dado4); // Vértice 3
+    grafo_insere_no(grafo, &dado5); // Vértice 4
+    grafo_insere_no(grafo, &dado6); // Vértice 5
 
-    // printf("Grafo apos remover 1 no\n");
-    // grafo_remove_no(grafo, no2);
+    // Adiciona arestas ao grafo
+    grafo_altera_valor_aresta(grafo, 5, 2, &dado1); // 5 -> 2
+    grafo_altera_valor_aresta(grafo, 5, 0, &dado2); // 5 -> 0
+    grafo_altera_valor_aresta(grafo, 4, 0, &dado3); // 4 -> 0
+    grafo_altera_valor_aresta(grafo, 4, 1, &dado4); // 4 -> 1
+    grafo_altera_valor_aresta(grafo, 2, 3, &dado5); // 2 -> 3
+    grafo_altera_valor_aresta(grafo, 3, 1, &dado6); // 3 -> 1
 
-    // Teste alterar valor do nó no grafo
-    int valorNovoValor = 99;
-    grafo_altera_valor_no(grafo,no2,&valorNovoValor);
-    printf("Grafo apos alterar o valor do 2 para 99 no\n");
-    grafo_imprime(grafo);
+    // Verifica se o grafo é cíclico
+    if (grafo_tem_ciclo(grafo)) {
+        printf("O grafo possui um ciclo. Ordem topológica não é possível.\n");
+        return EXIT_FAILURE;
+    }
 
-    // Teste Remoção de no do grafo
-    grafo_remove_no(grafo, no2);
-    printf("Grafo apos remocao do segundo dado: \n");
-    grafo_imprime(grafo);
+    // Calcula a ordem topológica
+    Fila ordem_topologica = grafo_ordem_topologica(grafo);
 
-    // Teste função que capta o numero de nos no grafo
-    int x = grafo_nnos(grafo);
-    printf("Numero de nos no grafo %d\n", x);
+    // Verifica se a ordem topológica é válida
+    if (fila_vazia(ordem_topologica)) {
+        printf("Erro: a ordem topológica retornada é vazia.\n");
+        return EXIT_FAILURE;
+    }
 
+    // Imprime a ordem topológica
+    printf("Ordem Topológica: ");
+    while (!fila_vazia(ordem_topologica)) {
+        int vertice;
+        fila_remove(ordem_topologica, &vertice);
+        printf("%d ", vertice);
+    }
+    printf("\n");
 
-
-   // Teste destroi grafo 
+    // Limpa a memória
+    fila_destroi(ordem_topologica);
     grafo_destroi(grafo);
-    grafo = NULL;
-    grafo_imprime(grafo);
-    
+
     return 0;
 }
