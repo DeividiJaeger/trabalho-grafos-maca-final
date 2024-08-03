@@ -116,28 +116,6 @@ int grafo_insere_no(Grafo self, void *pdado)
     return indice_novo_no;
 }
 
-/* Função para imprimir um grafo completo, suas arestas e nos e dados*/
-// void grafo_imprime(Grafo grafo)
-// {
-//     if(grafo == NULL)
-//     {
-//         printf("KABUM!! Grafo esta destruido (vazio ou nulo).\n");
-//         return;
-//     }
-//     for(int i = 0; i < grafo->numVertices; i++)
-//     {
-//         printf("No %d: ", i);
-//         No* no = &grafo->vertice[i];
-//         printf("dados = %d ", *(int*)no->dado);
-//         Aresta* aresta = no->listaArestas;
-//         while (aresta)
-//         {
-//             printf(" -> [Destino: %d, dados: %d] ", aresta->destino, *(int*)aresta->dado);
-//             aresta = aresta->prox;
-//         }
-//         printf("\n");
-//     }   
-// }
 
 // Remove um nó do grafo e as arestas incidentes nesse nó
 // a identificação dos nós remanescentes é alterada, como se esse nó nunca tivesse existido
@@ -332,23 +310,22 @@ void grafo_altera_valor_aresta(Grafo self, int origem, int destino, void *pdado)
         return;
     }
 
-    // Procurar a aresta na lista de arestas do nó de origem
-    Aresta *anterior = NULL;
+    if(origem == destino)
+    {
+        return;
+    }
+
     Aresta *atual = self->vertice[origem].listaArestas;
 
     while (atual != NULL && atual->destino != destino) 
     {
-        anterior = atual;
         atual = atual->prox;
     }
 
     // Se pdado é NULL, a aresta deve ser removida
     if (pdado == NULL) 
     {
-        if (atual != NULL) 
-        {
-            remove_aresta(&self->vertice[origem], destino);
-        }
+        remove_aresta(&self->vertice[origem], destino);
         return;
     }
 
@@ -522,53 +499,59 @@ bool grafo_proxima_aresta(Grafo self, int *vizinho, void *pdado)
     return false;
 }
 
-// Função auxiliar para verificação do ciclo
 bool grafo_tem_ciclo_aux(Grafo self, int v, bool *visitado, bool *pilhaRec)
 {
+    if (self == NULL || v < 0 || v >= self->numVertices) {
+        return false;
+    }
+
+    pilhaRec[v] = true;
+    visitado[v] = true;
+
     Aresta *aresta = self->vertice[v].listaArestas;
-    while(aresta != NULL)
-    {
+    while (aresta != NULL) {
         int destino = aresta->destino;
 
-        // Se o desitno não foi visitado chamo a função recursivamente
-        if(!visitado[destino] && grafo_tem_ciclo_aux(self, destino, visitado, pilhaRec))
-        {
+        if (destino < 0 || destino >= self->numVertices) {
+            return false;
+        }
+
+        // Se o destino não foi visitado, chamo a função recursivamente
+        if (!visitado[destino] && grafo_tem_ciclo_aux(self, destino, visitado, pilhaRec)) {
             return true;
-        }else if(pilhaRec[destino])
-        {
+        } else if (pilhaRec[destino]) {
             return true;
         }
         aresta = aresta->prox;
     }
-    
-    // Removo o vertice da pilha de recursão
+
+    // Removo o vértice da pilha de recursão
     pilhaRec[v] = false;
     return false;
 }
 
-// Retorna true se o grafo é cíclico, false caso contrário
 bool grafo_tem_ciclo(Grafo self) {
+    if (self == NULL) {
+        return false;
+    }
+
     bool *visitado = (bool *)malloc(self->numVertices * sizeof(bool));
     bool *pilhaRec = (bool *)malloc(self->numVertices * sizeof(bool));
     
-    if (visitado == NULL || pilhaRec == NULL) 
-    {
+    if (visitado == NULL || pilhaRec == NULL) {
         fprintf(stderr, "Erro ao alocar memória.\n");
         return false;
     }
 
     // Inicializar arrays
-    for (int i = 0; i < self->numVertices; i++) 
-    {
+    for (int i = 0; i < self->numVertices; i++) {
         visitado[i] = false;
         pilhaRec[i] = false;
     }
 
     // Verificar ciclos
-    for (int i = 0; i < self->numVertices; i++) 
-    {
-        if (!visitado[i] && grafo_tem_ciclo_aux(self, i, visitado, pilhaRec)) 
-        {
+    for (int i = 0; i < self->numVertices; i++) {
+        if (!visitado[i] && grafo_tem_ciclo_aux(self, i, visitado, pilhaRec)) {
             free(visitado);
             free(pilhaRec);
             return true;
@@ -579,6 +562,7 @@ bool grafo_tem_ciclo(Grafo self) {
     free(pilhaRec);
     return false;
 }
+
 
 // Aqui percorre todas as arestas do grafo e conta o numero de vezes que cada no e destino de uma aresta
 // Função para calcular os graus de entrada de cada vértice
