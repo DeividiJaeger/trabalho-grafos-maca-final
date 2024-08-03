@@ -143,23 +143,34 @@ int grafo_insere_no(Grafo self, void *pdado)
 // a identificação dos nós remanescentes é alterada, como se esse nó nunca tivesse existido
 void grafo_remove_no(Grafo self, int no)
 {
-    if(self == NULL || no < 0 || no >= self->numVertices)
+    if (self == NULL || no < 0 || no >= self->numVertices)
     {
-        fprintf(stderr, "Erro: Grafo ou nó são nulos\n");
+        fprintf(stderr, "Erro: Grafo ou nó inválido\n");
         return;
     }
 
-    // Remoção de todas as arestas que chegam e partem do nó
-    for(int i = 0; i < self->numVertices; i++)
+    // Remoção de todas as arestas que partem do nó
+    Aresta *arestaAtual = self->vertice[no].listaArestas;
+    while (arestaAtual != NULL)
     {
+        Aresta *proximaAresta = arestaAtual->prox;
+        free(arestaAtual->dado);
+        free(arestaAtual);
+        arestaAtual = proximaAresta;
+    }
+
+    // Remoção de todas as arestas que chegam ao nó
+    for (int i = 0; i < self->numVertices; i++)
+    {
+        if (i == no) continue;
         Aresta *arestaAnterior = NULL;
-        Aresta *arestaAtual = self->vertice[i].listaArestas;
+        arestaAtual = self->vertice[i].listaArestas;
 
         while (arestaAtual != NULL)
         {
-            if(arestaAtual->destino == no || i == no)
+            if (arestaAtual->destino == no)
             {
-                if(arestaAnterior == NULL)
+                if (arestaAnterior == NULL)
                 {
                     self->vertice[i].listaArestas = arestaAtual->prox;
                 }
@@ -167,11 +178,11 @@ void grafo_remove_no(Grafo self, int no)
                 {
                     arestaAnterior->prox = arestaAtual->prox;
                 }
-                
+
                 free(arestaAtual->dado);
-                Aresta* proximaArestaAuxiliar = arestaAtual->prox;
+                Aresta *proximaAresta = arestaAtual->prox;
                 free(arestaAtual);
-                arestaAtual = proximaArestaAuxiliar;
+                arestaAtual = proximaAresta;
             }
             else
             {
@@ -183,14 +194,17 @@ void grafo_remove_no(Grafo self, int no)
 
     free(self->vertice[no].dado);
 
-    for(int i = no; i < self->numVertices - 1; i++)
+    // Ajuste os nós restantes
+    for (int i = no; i < self->numVertices - 1; i++)
     {
         self->vertice[i] = self->vertice[i + 1];
     }
 
-    if(self->numVertices > 1)
+    self->numVertices--;
+
+    if (self->numVertices > 0)
     {
-        No* temp = (No*)realloc(self->vertice, (self->numVertices - 1) * sizeof(No));
+        No *temp = (No *)realloc(self->vertice, self->numVertices * sizeof(No));
         if (temp == NULL)
         {
             fprintf(stderr, "Erro ao realocar memória para os nós\n");
@@ -204,9 +218,20 @@ void grafo_remove_no(Grafo self, int no)
         self->vertice = NULL;
     }
 
-    self->numVertices--;
+    // Ajustar os índices das arestas restantes
+    for (int i = 0; i < self->numVertices; i++)
+    {
+        arestaAtual = self->vertice[i].listaArestas;
+        while (arestaAtual != NULL)
+        {
+            if (arestaAtual->destino > no)
+            {
+                arestaAtual->destino--;
+            }
+            arestaAtual = arestaAtual->prox;
+        }
+    }
 }
-            
 
 // altera o valor associado a um nó (copia o valor apontado por pdado para o nó)
 void grafo_altera_valor_no(Grafo self, int no, void *pdado)
@@ -255,10 +280,10 @@ void remove_aresta(No *no, int destino)
         anterior = atual;
         atual = atual->prox;
     }
-
+    
+    // A aresta não existe, nada para remover
     if (atual == NULL) 
     {
-        // A aresta não existe, nada para remover
         return;
     }
 
@@ -282,13 +307,11 @@ void cria_aresta(No *no, int destino, void *pdado, int tam_aresta)
     Aresta *novaAresta = (Aresta *)malloc(sizeof(Aresta));
     if (novaAresta == NULL) 
     {
-        fprintf(stderr, "Erro ao alocar memória para a nova aresta\n");
         exit(EXIT_FAILURE);
     }
     novaAresta->dado = malloc(tam_aresta);
     if (novaAresta->dado == NULL) 
     {
-        fprintf(stderr, "Erro ao alocar memória para o dado da nova aresta\n");
         free(novaAresta);
         exit(EXIT_FAILURE);
     }
@@ -306,7 +329,6 @@ void grafo_altera_valor_aresta(Grafo self, int origem, int destino, void *pdado)
     // Verificação dos parâmetros recebidos
     if (self == NULL || origem < 0 || destino < 0 || origem >= self->numVertices || destino >= self->numVertices) 
     {
-        printf("Erro: parâmetros inválidos na função altera_valor_aresta\n");
         return;
     }
 
