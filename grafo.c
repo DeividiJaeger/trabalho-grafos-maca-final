@@ -119,17 +119,16 @@ int grafo_insere_no(Grafo self, void *pdado)
 
 // Remove um nó do grafo e as arestas incidentes nesse nó
 // a identificação dos nós remanescentes é alterada, como se esse nó nunca tivesse existido
-void grafo_remove_no(Grafo self, int no)
+void grafo_remove_no(Grafo self, int no) 
 {
-    if (self == NULL || no < 0 || no >= self->numVertices)
+    if (self == NULL || no < 0 || no >= self->numVertices) 
     {
-        fprintf(stderr, "Erro: Grafo ou nó inválido\n");
         return;
     }
 
     // Remoção de todas as arestas que partem do nó
     Aresta *arestaAtual = self->vertice[no].listaArestas;
-    while (arestaAtual != NULL)
+    while (arestaAtual != NULL) 
     {
         Aresta *proximaAresta = arestaAtual->prox;
         free(arestaAtual->dado);
@@ -138,22 +137,19 @@ void grafo_remove_no(Grafo self, int no)
     }
 
     // Remoção de todas as arestas que chegam ao nó
-    for (int i = 0; i < self->numVertices; i++)
+    for (int i = 0; i < self->numVertices; i++) 
     {
-        if (i == no) continue;
         Aresta *arestaAnterior = NULL;
         arestaAtual = self->vertice[i].listaArestas;
 
-        while (arestaAtual != NULL)
+        while (arestaAtual != NULL) 
         {
-            if (arestaAtual->destino == no)
+            if (arestaAtual->destino == no) 
             {
-                if (arestaAnterior == NULL)
+                if (arestaAnterior == NULL) 
                 {
                     self->vertice[i].listaArestas = arestaAtual->prox;
-                }
-                else
-                {
+                } else {
                     arestaAnterior->prox = arestaAtual->prox;
                 }
 
@@ -161,48 +157,44 @@ void grafo_remove_no(Grafo self, int no)
                 Aresta *proximaAresta = arestaAtual->prox;
                 free(arestaAtual);
                 arestaAtual = proximaAresta;
-            }
-            else
-            {
+            } else {
                 arestaAnterior = arestaAtual;
                 arestaAtual = arestaAtual->prox;
             }
         }
     }
 
+    // Libera a memória do nó removido
     free(self->vertice[no].dado);
 
     // Ajuste os nós restantes
-    for (int i = no; i < self->numVertices - 1; i++)
+    for (int i = no; i < self->numVertices - 1; i++) 
     {
         self->vertice[i] = self->vertice[i + 1];
     }
 
     self->numVertices--;
 
-    if (self->numVertices > 0)
+    if (self->numVertices > 0) 
     {
         No *temp = (No *)realloc(self->vertice, self->numVertices * sizeof(No));
-        if (temp == NULL)
+        if (temp == NULL) 
         {
-            fprintf(stderr, "Erro ao realocar memória para os nós\n");
             exit(EXIT_FAILURE);
         }
         self->vertice = temp;
-    }
-    else
-    {
+    } else {
         free(self->vertice);
         self->vertice = NULL;
     }
 
     // Ajustar os índices das arestas restantes
-    for (int i = 0; i < self->numVertices; i++)
+    for (int i = 0; i < self->numVertices; i++) 
     {
         arestaAtual = self->vertice[i].listaArestas;
-        while (arestaAtual != NULL)
+        while (arestaAtual != NULL) 
         {
-            if (arestaAtual->destino > no)
+            if (arestaAtual->destino > no) 
             {
                 arestaAtual->destino--;
             }
@@ -248,29 +240,24 @@ int grafo_nnos(Grafo self)
 
 // Arestas
 // Função auxiliar para remover a aresta
-void remove_aresta(No *no, int destino) 
-{
+void remove_aresta(No *no, int destino) {
     Aresta *anterior = NULL;
     Aresta *atual = no->listaArestas;
 
-    while (atual != NULL && atual->destino != destino) 
-    {
+    while (atual != NULL && atual->destino != destino) {
         anterior = atual;
         atual = atual->prox;
     }
     
     // A aresta não existe, nada para remover
-    if (atual == NULL) 
-    {
+    if (atual == NULL) {
         return;
     }
 
-    if (anterior == NULL) 
-    {
+    if (anterior == NULL) {
         // A aresta a ser removida é a primeira da lista
         no->listaArestas = atual->prox;
-    } else 
-    {
+    } else {
         // A aresta a ser removida está no meio ou fim da lista
         anterior->prox = atual->prox;
     }
@@ -279,7 +266,7 @@ void remove_aresta(No *no, int destino)
     free(atual);
 }
 
-// Função auxiliar pra criar a aresta
+// Função auxiliar para criar a aresta
 void cria_aresta(No *no, int destino, void *pdado, int tam_aresta) 
 {
     Aresta *novaAresta = (Aresta *)malloc(sizeof(Aresta));
@@ -310,7 +297,7 @@ void grafo_altera_valor_aresta(Grafo self, int origem, int destino, void *pdado)
         return;
     }
 
-    if(origem == destino)
+    if(origem == destino) 
     {
         return;
     }
@@ -330,7 +317,8 @@ void grafo_altera_valor_aresta(Grafo self, int origem, int destino, void *pdado)
     }
 
     // Se a aresta já existe, alterar o valor
-    if (atual != NULL) {
+    if (atual != NULL) 
+    {
         memcpy(atual->dado, pdado, self->tam_aresta);
     } else {
         // Se a aresta não existe, criar uma nova aresta
@@ -345,8 +333,6 @@ bool grafo_valor_aresta(Grafo self, int origem, int destino, void *pdado)
     // Verificação dos parâmetros recebidos
     if (self == NULL || origem < 0 || destino < 0 || origem >= self->numVertices || destino >= self->numVertices) 
     {
-        printf("Erro: parâmetros inválidos na função grafo_valor_aresta\n");
-        printf("Detalhes: self=%p, origem=%d, destino=%d, numVertices=%d\n", self, origem, destino, self->numVertices);
         return false; 
     }
 
@@ -372,38 +358,38 @@ bool grafo_valor_aresta(Grafo self, int origem, int destino, void *pdado)
 // inicia uma consulta a arestas que partem do nó origem
 // as próximas chamadas a 'grafo_proxima_aresta' devem retornar os valores correspondentes
 // à cada aresta que parte desse nó
-void grafo_arestas_que_partem(Grafo self, int origem)
+void grafo_arestas_que_partem(Grafo self, int origem) 
 {
-    if(self == NULL || origem < 0 || origem >= self->numVertices)
+    if(self == NULL || origem < 0 || origem >= self->numVertices) 
     {
         return;
     }
     self->arestaAtual = self->vertice[origem].listaArestas;
-    self->modoConsulta = 1; // tipo 1 repectivo ao no que parte
+    self->modoConsulta = 1; // tipo 1 respectivo ao nó que parte
     self->noConsulta = origem;
 }
 
 // inicia uma consulta a arestas que chegam ao nó destino
 // as próximas chamadas a 'grafo_proxima_aresta' devem retornar os valores correspondentes
 // à cada aresta que chega nesse nó
-void grafo_arestas_que_chegam(Grafo self, int destino)
+void grafo_arestas_que_chegam(Grafo self, int destino) 
 {
-    if(self == NULL || destino < 0 || destino >= self->numVertices)
+    if (self == NULL || destino < 0 || destino >= self->numVertices) 
     {
         return;
     }
 
     self->arestaAtual = NULL;
-    self->modoConsulta = 2; // tipo 2 repectivo ao no que chega
+    self->modoConsulta = 2; // tipo 2 respectivo ao nó que chega
     self->noConsulta = destino;
 
-    // Encontro a aresta que chega no destino 
-    for(int i = 0; i < self->numVertices; i++)
+    // Encontrar a primeira aresta que chega ao destino
+    for (int i = 0; i < self->numVertices; i++) 
     {
         Aresta *aresta = self->vertice[i].listaArestas;
-        while(aresta != NULL)
+        while (aresta != NULL) 
         {
-            if(aresta->destino == destino)
+            if (aresta->destino == destino) 
             {
                 self->arestaAtual = aresta;
                 return;
@@ -415,17 +401,17 @@ void grafo_arestas_que_chegam(Grafo self, int destino)
 
 // Funções auxiliares para diminuir o tamanho e melhorar
 // a legibilidade da função grafo_proxima_aresta
-bool proxima_aresta_que_parte(Grafo self, int *vizinho, void *pdado)
+bool proxima_aresta_que_parte(Grafo self, int *vizinho, void *pdado) 
 {
     if(self->arestaAtual == NULL) 
     {
         return false;
     }
-    if(vizinho != NULL)
+    if(vizinho != NULL) 
     { 
         *vizinho = self->arestaAtual->destino;
     }
-    if(pdado != NULL)
+    if(pdado != NULL) 
     {
         memcpy(pdado, self->arestaAtual->dado, self->tam_aresta);
     }
@@ -437,71 +423,67 @@ bool proxima_aresta_que_parte(Grafo self, int *vizinho, void *pdado)
 
 bool proxima_aresta_que_chega(Grafo self, int *vizinho, void *pdado) 
 {
-    // Percorre a lista de arestas atual procurando a próxima aresta que chega ao nó de destino
-    while (self->arestaAtual != NULL) 
-    {
-        if (self->arestaAtual->destino == self->noConsulta) 
-        {
-            if (vizinho != NULL) 
-            {
-                *vizinho = self->noConsulta;
-            }
-            if (pdado != NULL) 
-            {
-                memcpy(pdado, self->arestaAtual->dado, self->tam_aresta);
-            }
-            // Atualiza arestaAtual para a próxima aresta na lista
-            self->arestaAtual = self->arestaAtual->prox;
-            return true; 
-        }
-        self->arestaAtual = self->arestaAtual->prox;
-    }
-
-    for (int i = 0; i < self->numVertices; i++) 
-    {
-        Aresta* aresta = self->vertice[i].listaArestas;
-        while (aresta != NULL) 
-        {
-            if (aresta->destino == self->noConsulta) 
-            {
-                self->arestaAtual = aresta->prox; // Corrigir para pular a atual
-                if (vizinho != NULL) 
-                {
-                    *vizinho = i;
-                }
-                if (pdado != NULL) 
-                {
-                    memcpy(pdado, aresta->dado, self->tam_aresta);
-                }
-                return true; 
-            }
-            aresta = aresta->prox;
-        }
-    }
-    return false; 
-}
-
-bool grafo_proxima_aresta(Grafo self, int *vizinho, void *pdado)
-{
-    if(self == NULL || self->arestaAtual == NULL)
+    if (self == NULL || self->arestaAtual == NULL) 
     {
         return false;
     }
 
-    if(self->modoConsulta == 1)
+    while (self->arestaAtual != NULL) 
     {
-        return proxima_aresta_que_parte(self, vizinho, pdado);
-    }else if(self->modoConsulta == 2)
-    {
-        return proxima_aresta_que_chega(self, vizinho, pdado);
+        Aresta *atual = self->arestaAtual;
+
+        // Atualizar vizinho com o índice do nó de origem da aresta atual
+        for (int i = 0; i < self->numVertices; i++) 
+        {
+            Aresta *aresta = self->vertice[i].listaArestas;
+            while (aresta != NULL) 
+            {
+                if (aresta == atual) 
+                {
+                    if (vizinho != NULL) 
+                    {
+                        *vizinho = i;
+                    }
+                    // Copiar o dado da aresta se pdado não for NULL
+                    if (pdado != NULL) 
+                    {
+                        memcpy(pdado, aresta->dado, self->tam_aresta);
+                    }
+                    // Avançar para a próxima aresta
+                    self->arestaAtual = self->arestaAtual->prox;
+                    return true;
+                }
+                aresta = aresta->prox;
+            }
+        }
+
+        // Avançar para a próxima aresta
+        self->arestaAtual = self->arestaAtual->prox;
     }
 
     return false;
 }
 
+bool grafo_proxima_aresta(Grafo self, int *vizinho, void *pdado) 
+{
+    if(self == NULL || self->arestaAtual == NULL) 
+    {
+        return false;
+    }
+
+    if(self->modoConsulta == 1) 
+    {
+        return proxima_aresta_que_parte(self, vizinho, pdado);
+    } else if(self->modoConsulta == 2) {
+        return proxima_aresta_que_chega(self, vizinho, pdado);
+    }
+
+    return false;
+}
 bool grafo_tem_ciclo_aux(Grafo self, int v, bool *visitado, bool *pilhaRec)
 {
-    if (self == NULL || v < 0 || v >= self->numVertices) {
+    if (self == NULL || v < 0 || v >= self->numVertices) 
+    {
         return false;
     }
 
@@ -509,15 +491,18 @@ bool grafo_tem_ciclo_aux(Grafo self, int v, bool *visitado, bool *pilhaRec)
     visitado[v] = true;
 
     Aresta *aresta = self->vertice[v].listaArestas;
-    while (aresta != NULL) {
+    while (aresta != NULL) 
+    {
         int destino = aresta->destino;
 
-        if (destino < 0 || destino >= self->numVertices) {
+        if (destino < 0 || destino >= self->numVertices) 
+        {
             return false;
         }
 
         // Se o destino não foi visitado, chamo a função recursivamente
-        if (!visitado[destino] && grafo_tem_ciclo_aux(self, destino, visitado, pilhaRec)) {
+        if (!visitado[destino] && grafo_tem_ciclo_aux(self, destino, visitado, pilhaRec)) 
+        {
             return true;
         } else if (pilhaRec[destino]) {
             return true;
@@ -530,28 +515,34 @@ bool grafo_tem_ciclo_aux(Grafo self, int v, bool *visitado, bool *pilhaRec)
     return false;
 }
 
-bool grafo_tem_ciclo(Grafo self) {
-    if (self == NULL) {
+bool grafo_tem_ciclo(Grafo self) 
+{
+    if (self == NULL) 
+    {
         return false;
     }
 
     bool *visitado = (bool *)malloc(self->numVertices * sizeof(bool));
     bool *pilhaRec = (bool *)malloc(self->numVertices * sizeof(bool));
     
-    if (visitado == NULL || pilhaRec == NULL) {
+    if (visitado == NULL || pilhaRec == NULL) 
+    {
         fprintf(stderr, "Erro ao alocar memória.\n");
         return false;
     }
 
     // Inicializar arrays
-    for (int i = 0; i < self->numVertices; i++) {
+    for (int i = 0; i < self->numVertices; i++) 
+    {
         visitado[i] = false;
         pilhaRec[i] = false;
     }
 
     // Verificar ciclos
-    for (int i = 0; i < self->numVertices; i++) {
-        if (!visitado[i] && grafo_tem_ciclo_aux(self, i, visitado, pilhaRec)) {
+    for (int i = 0; i < self->numVertices; i++) 
+    {
+        if (!visitado[i] && grafo_tem_ciclo_aux(self, i, visitado, pilhaRec)) 
+        {
             free(visitado);
             free(pilhaRec);
             return true;
